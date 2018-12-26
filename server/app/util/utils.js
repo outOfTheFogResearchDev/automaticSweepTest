@@ -5,6 +5,11 @@ const csvWrite = require('csv-stringify');
 const csvRead = require('csv-parse');
 const b = require('bindings');
 
+const rfOn = b('rfOn');
+const rfOff = b('rfOff');
+const setPower = b('setPower');
+const getPower = b('getPower');
+
 const csvFolderLocation = './server/local';
 const csvLocation = (channel, unit, type) => `${csvFolderLocation}/unit${unit}_channel${channel}_${type}.csv`;
 
@@ -24,13 +29,17 @@ const readCsv = async (channel, unit, type) => {
   try {
     await stat(csvLocation(channel, unit, type));
   } catch (e) {
-    throw new Error('That channel has not been swept yet for that unit');
+    return [];
   }
   const csv = await readFile(csvLocation(channel, unit, type), 'utf8');
   return new Promise(resolve => csvRead(csv, (err, data) => resolve(data)));
 };
 
 module.exports = {
+  rfOn,
+  rfOff,
+  setPower,
+  getPower,
   writeCsv,
   readCsv,
 };
