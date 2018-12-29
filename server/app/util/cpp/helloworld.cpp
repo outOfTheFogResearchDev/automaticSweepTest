@@ -14,7 +14,7 @@ void getPower(const FunctionCallbackInfo<Value> &args)
     ViStatus viStatus = 0;
 
     viStatus = viOpenDefaultRM(&defaultRM);
-    viStatus = viOpen(defaultRM, "GPIB0::16::INSTR", VI_NULL, VI_NULL, &viMXA);
+    viStatus = viOpen(defaultRM, "GPIB0::18::INSTR", VI_NULL, VI_NULL, &viMXA);
 
     if (viStatus)
     {
@@ -23,17 +23,13 @@ void getPower(const FunctionCallbackInfo<Value> &args)
         printf("\n");
         exit(0);
     }
-    viPrintf(viMXA, "*RST\n"); // initializes signal generator
-                               // prints to the output window
-    printf("The signal generator should now be in REMOTE. The remote indicator\n");
-    printf("annunciator R should appear on the signal generator display\n");
-    printf("\n");
 
     viClose(viMXA);     // closes session
     viClose(defaultRM); // closes default session
+
     //* C++ ends here
 
-    // args.GetReturnValue().Set(Number::New(isolate, power));
+    args.GetReturnValue().Set();
 }
 
 void init(Local<Object> exports, Local<Object> method)

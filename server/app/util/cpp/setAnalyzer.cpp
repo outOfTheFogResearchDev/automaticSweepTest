@@ -6,11 +6,9 @@ using namespace v8;
 void setAnalyzer(const FunctionCallbackInfo<Value> &args)
 {
     Isolate *isolate = args.GetIsolate();
-    int frequency = args[0].As<Number>()->Value();
+    double frequency = args[0].As<Number>()->Value();
 
     //* C++ starts here
-
-    double power;
 
     ViSession defaultRM, viMXA;
     ViStatus viStatus = 0;
@@ -21,15 +19,14 @@ void setAnalyzer(const FunctionCallbackInfo<Value> &args)
     if (viStatus)
         return;
 
-    viPrintf(viMXA, "CALC:MARKER1:Y?\n");
-    viScanf(viMXA, "%t", &power);
+    viPrintf(viMXA, "FREQ:CENTER %.2f GHz\n", frequency);
+    viPrintf(viMXA, "FREQ:SPAN 0 Hz\n");
+    viPrintf(viMXA, "CALC:MARKER1 %.2f GHz\n", frequency);
 
     viClose(viMXA);     // closes session
     viClose(defaultRM); // closes default session
 
     //* C++ ends here
-
-    args.GetReturnValue().Set(Number::New(isolate, power));
 }
 
 void init(Local<Object> exports, Local<Object> method)
