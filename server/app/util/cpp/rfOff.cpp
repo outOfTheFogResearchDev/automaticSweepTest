@@ -16,6 +16,7 @@ void rfOff(const FunctionCallbackInfo<Value> &args)
     if (viStatus)
         return;
 
+    // Turns RF off
     viPrintf(viMXG, "OUTP OFF\n");
 
     viClose(viMXG);     // closes session

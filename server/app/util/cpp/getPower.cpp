@@ -10,8 +10,6 @@ void setAnalyzer(const FunctionCallbackInfo<Value> &args)
 
     //* C++ starts here
 
-    double power;
-
     ViSession defaultRM, viMXA;
     ViStatus viStatus = 0;
 
@@ -21,15 +19,20 @@ void setAnalyzer(const FunctionCallbackInfo<Value> &args)
     if (viStatus)
         return;
 
-    viPrintf(viMXA, "CALC:MARKER1:Y?\n");
-    viScanf(viMXA, "%t", &power);
+    std::string res;
+
+    // Initiate a sweep
+    viPrintf(viMXA, "INIT:IMM;*WAI\n");
+
+    // Get the current output in string form, to be converted to a number in JS
+    viQueryf(viMXA, "CALC:MARKER1:Y?\n", "%t", &res);
 
     viClose(viMXA);     // closes session
     viClose(defaultRM); // closes default session
 
     //* C++ ends here
 
-    args.GetReturnValue().Set(Number::New(isolate, power));
+    args.GetReturnValue().Set(String::NewFromUtf8(isolate, res.c_str()));
 }
 
 void init(Local<Object> exports, Local<Object> method)

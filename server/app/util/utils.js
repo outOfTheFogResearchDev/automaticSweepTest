@@ -8,7 +8,22 @@ const b = require('bindings');
 const rfOn = b('rfOn');
 const rfOff = b('rfOff');
 const setPower = b('setPower');
-const getPower = b('getPower');
+const setAnalyzer = b('setAnalyzer');
+const resetAnalyzer = b('resetAnalyzer');
+const gp = b('getPower');
+
+const getPower = async () => {
+  let data = await gp();
+
+  data = data.split('E');
+  const num = +data[0];
+  const e = +data[1].split('\n')[0];
+
+  const power = num * 10 ** e;
+
+  const decimalPlacesToRoundTo = 2;
+  return Math.round(power * 10 ** decimalPlacesToRoundTo) / 10 ** decimalPlacesToRoundTo;
+};
 
 const csvFolderLocation = './server/local';
 const csvLocation = (channel, unit, type) => `${csvFolderLocation}/unit${unit}_channel${channel}_${type}.csv`;
@@ -39,6 +54,8 @@ module.exports = {
   rfOn,
   rfOff,
   setPower,
+  setAnalyzer,
+  resetAnalyzer,
   getPower,
   writeCsv,
   readCsv,

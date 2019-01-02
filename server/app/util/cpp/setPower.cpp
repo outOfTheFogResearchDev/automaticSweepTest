@@ -20,8 +20,9 @@ void setPower(const FunctionCallbackInfo<Value> &args)
     if (viStatus)
         return;
 
-    viPrintf(viMXG, "FREQ %.2fGHz\n", frequency);
-    viPrintf(viMXG, "POW %.2fdBm\n", power);
+    // Set frequency and power
+    viPrintf(viMXG, "FREQ %fGHz\n", frequency);
+    viPrintf(viMXG, "POW %fdBm\n", power);
 
     viClose(viMXG);     // closes session
     viClose(defaultRM); // closes default session

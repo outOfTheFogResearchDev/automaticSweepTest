@@ -19,9 +19,18 @@ void setAnalyzer(const FunctionCallbackInfo<Value> &args)
     if (viStatus)
         return;
 
-    viPrintf(viMXA, "FREQ:CENTER %.2f GHz\n", frequency);
-    viPrintf(viMXA, "FREQ:SPAN 0 Hz\n");
-    viPrintf(viMXA, "CALC:MARKER1 %.2f GHz\n", frequency);
+    // Turn off sweeping
+    viSetAttribute(viMXA, VI_ATTR_TMO_VALUE, 600000);
+    viClear(viMXA);
+    viPrintf(viMXA, "*CLS\n");
+    viPrintf(viMXA, "*RST\n");
+    viPrintf(viMXA, "INIT:CONT OFF\n");
+
+    // Set band center and marker
+    viPrintf(viMXA, "FREQ:CENTER %f GHz\n", frequency);
+    viPrintf(viMXA, "FREQ:SPAN 1 MHz\n");
+    viPrintf(viMXA, "CALC:MARK1:MODE OFF\n");
+    viPrintf(viMXA, "CALC:MARK1:SET:CENT\n");
 
     viClose(viMXA);     // closes session
     viClose(defaultRM); // closes default session

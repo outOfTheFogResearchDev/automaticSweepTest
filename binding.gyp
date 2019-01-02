@@ -29,6 +29,12 @@
       "include_dirs": [ "<(module_root_dir)/server/app/util/cpp" ],
       "sources": [ "<(module_root_dir)/server/app/util/cpp/setAnalyzer.cpp" ],
       "link_settings": { "libraries": [ "-lvisa64" ], "library_dirs" : [ "<(module_root_dir)/server/app/util/cpp" ] }
+    },
+    { 
+      "target_name": "resetAnalyzer",
+      "include_dirs": [ "<(module_root_dir)/server/app/util/cpp" ],
+      "sources": [ "<(module_root_dir)/server/app/util/cpp/resetAnalyzer.cpp" ],
+      "link_settings": { "libraries": [ "-lvisa64" ], "library_dirs" : [ "<(module_root_dir)/server/app/util/cpp" ] }
     }
   ]
 }
