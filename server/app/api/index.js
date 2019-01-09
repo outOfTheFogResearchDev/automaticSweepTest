@@ -44,14 +44,16 @@ api
   })
   .get(async (req, res) => {
     const { channel, unit } = req.query;
+    let low = [];
+    let high = [];
     try {
-      const low = await readCsv(channel, unit, 'low');
-      const high = await readCsv(channel, unit, 'high');
-      const sweep = low.concat(high);
-      res.status(200).send({ sweep });
-    } catch (e) {
-      res.status(400).send(e);
-    }
+      low = await readCsv(channel, unit, 'low');
+    } catch (e) {} // eslint-disable-line no-empty
+    try {
+      high = await readCsv(channel, unit, 'high');
+    } catch (e) {} // eslint-disable-line no-empty
+    const data = low.concat(high);
+    res.status(200).send({ data });
   });
 
 module.exports = api;
