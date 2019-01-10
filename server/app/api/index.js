@@ -4,20 +4,25 @@ const { rfOn, rfOff, setPower, setAnalyzer, resetAnalyzer, getPower, writeCsv, r
 const api = Router();
 
 api.get('/sweep', async (req, res) => {
-  let { frequency, startPower, endPower } = req.query;
-  frequency = +frequency;
+  const { type } = req.query;
+  let { channel, startPower, endPower } = req.query;
+  channel = +channel;
   startPower = +startPower;
   endPower = +endPower;
+  const frequency = [1.25, 2.25, 4, 7.5, 15][channel - 1];
+  const dataOffset = [0.6, 0.8, 1.1, 1.8, 2.8][channel - 1];
+  const powerDataOffset = type === 'high' ? [20, 20, 26, 23, 17.5][channel - 1] : 0;
+
   const data = [];
   await setAnalyzer(frequency);
   await rfOn();
   const sweep = async power => {
     if (power > endPower) return;
     await setPower(frequency, power);
-    // Wait 2 milliseconds for systems to respond
-    await new Promise(resolve => setTimeout(resolve, 2));
+    // Wait 10 milliseconds for systems to respond
+    await new Promise(resolve => setTimeout(resolve, 10));
     const dBm = await getPower();
-    data.push([power, dBm]);
+    data.push([power + powerDataOffset, dBm + dataOffset]);
     // If the dBm return value goes above -10 dBm, turn the rf off and stop the sweep
     if (dBm >= -10) {
       await rfOff();
@@ -26,6 +31,7 @@ api.get('/sweep', async (req, res) => {
     await sweep(power + 0.25);
   };
   await sweep(startPower);
+  await setPower(frequency, -20);
   await rfOff();
   await resetAnalyzer();
   res.send({ sweep: data });
