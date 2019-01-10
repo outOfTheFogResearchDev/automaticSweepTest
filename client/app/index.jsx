@@ -11,7 +11,7 @@ const PrintTitle = styled.h1`
 const PrintUnitAndChannel = styled.h1`
   display: inline-block;
   font-size: 100%;
-  margin-left: 600px;
+  margin-left: 430px;
 `;
 
 const PrintDate = styled.h1`
@@ -76,17 +76,18 @@ const HighSweep = styled.button`
 
 const transformData = sweep => {
   const data = [];
-  let level = 13;
+  let level = 12;
   sweep.forEach(([power, dBm], i) => {
-    if (i !== 0 && +dBm < data[data.length - 1].y)
-      data[data.length - 1] = {
-        ...data[data.length - 1],
-        indexLabel: `${(level -= 1)}, {y}`,
+    let indexOptions = {};
+    if (i !== sweep.length - 1 && +dBm > sweep[i + 1][1] && level >= 2) {
+      level -= 1;
+      indexOptions = {
         markerType: 'triangle',
-        markerColor: '#6B8E23',
+        markerColor: +dBm > -13 && +dBm < -12 ? '#6B8E23' : 'tomato',
         markerSize: 12,
       };
-    data.push({ x: +power, y: +dBm });
+    }
+    data.push({ x: +power, y: +dBm, ...indexOptions });
   });
   return data;
 };
@@ -145,23 +146,19 @@ export default class extends Component {
     const { channel, unit } = this.state;
     if (
       channel &&
-      ((type === 'high' || type === 'full') &&
+      (type === 'high' &&
         !window.confirm(`Make sure that the manual pop-up check has passed for this channel before proceeding`))
     ) {
       return;
     }
-    const frequency = [1.25, 2.25, 4, 7, 15][+channel - 1];
     let startPower = -70;
     let endPower = -70;
     if (type === 'low') {
       startPower = -50;
       endPower = 15;
     } else if (type === 'high') {
-      startPower = -50;
-      endPower = 15;
-    } else if (type === 'full') {
-      startPower = -50;
-      endPower = 15;
+      startPower = [-5, -5, -11, -8, -2.5][+channel - 1];
+      endPower = [14, 14, 8, 11, 16.5][+channel - 1];
     } else {
       return;
     }
@@ -170,7 +167,7 @@ export default class extends Component {
       const {
         data: { sweep },
       } = await get('/api/sweep', {
-        params: { frequency, startPower, endPower },
+        params: { channel, startPower, endPower, type },
       });
       this.setState({ sweep });
       await post('/api/sweep/data', { channel, sweep, unit, type });
@@ -185,9 +182,9 @@ export default class extends Component {
 
     const chartOptions = {
       width: '1200',
-      height: '500',
+      height: printing ? '830' : '500',
       axisX: { title: 'Power' },
-      axisY: { title: 'Signal' },
+      axisY: { title: 'Signal', maximum: -10, minimum: -30, interval: 1, gridThickness: 0.5 },
       data: [
         {
           type: 'line',
