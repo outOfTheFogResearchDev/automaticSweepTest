@@ -79,13 +79,14 @@ const transformData = sweep => {
   let level = 12;
   sweep.forEach(([power, dBm], i) => {
     let indexOptions = {};
-    if (i !== sweep.length - 1 && +dBm > sweep[i + 1][1] && level >= 2) {
-      level -= 1;
+    if (sweep[i + 1] && +dBm > sweep[i + 1][1] && level >= 2) {
       indexOptions = {
         markerType: 'triangle',
-        markerColor: +dBm > -13 && +dBm < -12 ? '#6B8E23' : 'tomato',
+        markerColor: +dBm >= -13 && +dBm <= -12 ? '#6B8E23' : 'tomato',
         markerSize: 12,
+        toolTipContent: `Level: ${level}, {y} dBm`,
       };
+      level -= 1;
     }
     data.push({ x: +power, y: +dBm, ...indexOptions });
   });
@@ -145,9 +146,18 @@ export default class extends Component {
   async sweepSystem({ target: { value: type } }) {
     const { channel, unit } = this.state;
     if (
-      channel &&
-      (type === 'high' &&
-        !window.confirm(`Make sure that the manual pop-up check has passed for this channel before proceeding`))
+      !channel ||
+      ((type === 'high' &&
+        !window.confirm(
+          `Make sure that the manual pop-up check has passed for channel ${channel}
+          
+Make sure the ${
+            ['ZHL-16W-43-S+', 'ZHL-16W-43-S+', '- ZVE-3W-83+', '- ZVE-3W-83+', '- ZVE-3W-183+'][+channel - 1]
+          } AMP is attached
+          
+Run the 15 dBm -> 34 dBm sweep?`
+        )) ||
+        (type === 'low' && !window.confirm(`Run the -50 dBm -> 15 dBm sweep on channel ${channel}?`)))
     ) {
       return;
     }
