@@ -1,5 +1,15 @@
 const { Router } = require('express');
-const { rfOn, rfOff, setPower, setAnalyzer, resetAnalyzer, getPower, writeCsv, readCsv } = require('../util/utils');
+const {
+  rfOn,
+  rfOff,
+  setPower,
+  setAnalyzer,
+  resetAnalyzer,
+  getPower,
+  writeCsv,
+  readCsv,
+  getDateLastModified,
+} = require('../util/utils');
 
 const api = Router();
 
@@ -52,14 +62,19 @@ api
     const { channel, unit } = req.query;
     let low = [];
     let high = [];
+    let dateLow = null;
+    let dateHigh = null;
     try {
       low = await readCsv(channel, unit, 'low');
+      dateLow = await getDateLastModified(channel, unit, 'low');
     } catch (e) {} // eslint-disable-line no-empty
     try {
       high = await readCsv(channel, unit, 'high');
+      dateHigh = await getDateLastModified(channel, unit, 'high');
     } catch (e) {} // eslint-disable-line no-empty
     const data = low.concat(high);
-    res.status(200).send({ data });
+    const date = [dateLow, dateHigh].sort((a, b) => a > b)[0];
+    res.status(200).send({ data, date: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}` });
   });
 
 module.exports = api;

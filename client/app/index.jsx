@@ -96,7 +96,7 @@ const transformData = sweep => {
 export default class extends Component {
   constructor(props) {
     super(props);
-    this.state = { sweep: [], channel: '', unit: '', printing: false, printingSweep: [] };
+    this.state = { sweep: [], channel: '', unit: '', printing: false, printingSweep: [], printDate: '' };
 
     this.print = this.print.bind(this);
     this.togglePrint = this.togglePrint.bind(this);
@@ -121,11 +121,11 @@ export default class extends Component {
     const { printing, channel, unit } = this.state;
     if (!printing && channel) {
       const {
-        data: { data: printingSweep },
+        data: { data: printingSweep, date: printDate },
       } = await get('/api/sweep/data', { params: { channel, unit } });
-      this.setState({ printing: true, printingSweep });
+      this.setState({ printing: true, printingSweep, printDate });
     } else {
-      this.setState({ printing: false, printingSweep: [] });
+      this.setState({ printing: false, printingSweep: [], printDate: '' });
     }
   }
 
@@ -188,7 +188,7 @@ Run the 15 dBm -> 34 dBm sweep?`
   /* eslint-enable no-alert */
 
   render() {
-    const { sweep, channel, unit, printing, printingSweep } = this.state;
+    const { sweep, channel, unit, printing, printingSweep, printDate } = this.state;
 
     const chartOptions = {
       width: '1200',
@@ -205,15 +205,13 @@ Run the 15 dBm -> 34 dBm sweep?`
     //* printing view
     if (printing) {
       chartOptions.data[0].dataPoints = transformData(printingSweep);
-      const today = new Date();
-      const date = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
       return (
         <Fragment>
           <PrintTitle>Sweep Data</PrintTitle>
           <PrintUnitAndChannel>
             Unit # {unit}, Channel: {channel}
           </PrintUnitAndChannel>
-          <PrintDate>{date}</PrintDate>
+          <PrintDate>{printDate}</PrintDate>
           <br />
           <CanvasJSChart options={chartOptions} />
         </Fragment>
