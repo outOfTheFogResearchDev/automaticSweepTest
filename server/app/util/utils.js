@@ -50,6 +50,17 @@ const readCsv = async (channel, unit, type) => {
   return new Promise(resolve => csvRead(csv, (err, data) => resolve(data)));
 };
 
+const getDateLastModified = (unit, channel, type) =>
+  new Promise(async resolve => {
+    try {
+      const { mtime } = await stat(csvLocation(unit, channel, type));
+      mtime.setHours(mtime.getHours() - 8);
+      resolve(mtime);
+    } catch (e) {
+      resolve(null);
+    }
+  });
+
 module.exports = {
   rfOn,
   rfOff,
@@ -59,4 +70,5 @@ module.exports = {
   getPower,
   writeCsv,
   readCsv,
+  getDateLastModified,
 };
