@@ -2,6 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const api = require('./api/index');
+const port = require('./util/port');
 
 const config = process.env.NODE_ENV === 'production' ? process.env : require('../../config/config');
 
@@ -27,6 +28,9 @@ app.use(express.static(`${__dirname}/../../client/dist/`));
 
 app.use('/api', api);
 
-app.get('/exit', () => process.exit());
+app.get('/exit', async () => {
+  if (port.connected) port.disconnect();
+  process.exit();
+});
 
 module.exports = app;
