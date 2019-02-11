@@ -44,16 +44,23 @@ const ProgramTitle = styled.h1`
   margin-left: 233px;
 `;
 
+const History = styled.button`
+  display: inline-block;
+  padding: 5px 5px;
+  margin-left: 331px;
+`;
+
 const Print = styled.button`
   display: inline-block;
   padding: 5px 5px;
-  margin-left: 433px;
+  margin-left: 10px;
 `;
 
 const Temperature = styled.p`
   display: inline-block;
   padding: 5px 5px;
-  margin-left: 85px;
+  margin-left: 87px;
+  margin-bottom: 0px;
   font-size: 100%;
   border: solid black 1px;
 `;
@@ -83,15 +90,21 @@ const HighSweep = styled.button`
   font-size: 100%;
 `;
 
+const nextIsLower = (sweep, dBm, i) => sweep[i + 1] && +dBm > sweep[i + 1][1];
+
+const nextDBIsLower = (sweep, dBm, i) => (sweep[i + 4] ? +dBm > sweep[i + 4][1] : true);
+
+const inRange = dBm => (+dBm >= -13 && +dBm <= -12 ? '#6B8E23' : 'tomato');
+
 const transformData = sweep => {
   const data = [];
   let level = 12;
   sweep.forEach(([power, dBm], i) => {
     let indexOptions = {};
-    if (sweep[i + 1] && +dBm > sweep[i + 1][1] && level >= 2) {
+    if (nextIsLower(sweep, dBm, i) && nextDBIsLower(sweep, dBm, i) && level >= 2) {
       indexOptions = {
         markerType: 'triangle',
-        markerColor: +dBm >= -13 && +dBm <= -12 ? '#6B8E23' : 'tomato',
+        markerColor: level <= 3 ? 'black' : inRange(dBm),
         markerSize: 12,
         toolTipContent: `Level: ${level}, {y} dBm`,
       };
@@ -119,6 +132,7 @@ export default class extends Component {
     this.togglePrint = this.togglePrint.bind(this);
     this.handleUnitNumberChange = this.handleUnitNumberChange.bind(this);
     this.handleChannelSwitch = this.handleChannelSwitch.bind(this);
+    this.handleDataHistory = this.handleDataHistory.bind(this);
     this.sweepSystem = this.sweepSystem.bind(this);
   }
 
@@ -157,6 +171,15 @@ export default class extends Component {
       data: { data: sweep },
     } = await get('/api/sweep/data', { params: { channel: +value, unit } });
     this.setState({ channel: +value, sweep });
+  }
+
+  async handleDataHistory() {
+    const { unit, channel } = this.state;
+    if (!channel) return;
+    const {
+      data: { data: sweep },
+    } = await get('/api/sweep/data', { params: { channel, unit } });
+    this.setState({ sweep });
   }
 
   /* eslint-disable no-alert */
@@ -245,10 +268,13 @@ Run the 15 dBm -> 34 dBm sweep?`
           <UnitNumber type="number" min="0" value={unit} onChange={this.handleUnitNumberChange} />
         </UnitForm>
         <ProgramTitle>Automatic Sweep Test</ProgramTitle>
+        <History type="submit" onClick={this.handleDataHistory}>
+          Refresh Data
+        </History>
         <Print type="submit" onClick={this.togglePrint}>
           Print
         </Print>
-        <Temperature>{temperature}</Temperature>
+        {temperature ? <Temperature>{temperature}</Temperature> : null}
         <br />
         {[1, 2, 3, 4, 5].map(num => (
           <Fragment key={num}>
