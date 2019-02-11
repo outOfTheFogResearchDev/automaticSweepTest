@@ -45,8 +45,17 @@ const ProgramTitle = styled.h1`
 `;
 
 const Print = styled.button`
+  display: inline-block;
   padding: 5px 5px;
   margin-left: 433px;
+`;
+
+const Temperature = styled.p`
+  display: inline-block;
+  padding: 5px 5px;
+  margin-left: 85px;
+  font-size: 100%;
+  border: solid black 1px;
 `;
 
 const ChannelText = styled.label`
@@ -96,7 +105,15 @@ const transformData = sweep => {
 export default class extends Component {
   constructor(props) {
     super(props);
-    this.state = { sweep: [], channel: '', unit: '', printing: false, printingSweep: [], printDate: '' };
+    this.state = {
+      sweep: [],
+      channel: '',
+      unit: '',
+      temperature: '',
+      printing: false,
+      printingSweep: [],
+      printDate: '',
+    };
 
     this.print = this.print.bind(this);
     this.togglePrint = this.togglePrint.bind(this);
@@ -161,6 +178,7 @@ Run the 15 dBm -> 34 dBm sweep?`
     ) {
       return;
     }
+    this.setState({ temperature: '' });
     let startPower = -70;
     let endPower = -70;
     if (type === 'low') {
@@ -175,11 +193,11 @@ Run the 15 dBm -> 34 dBm sweep?`
 
     try {
       const {
-        data: { sweep },
+        data: { sweep, temperature },
       } = await get('/api/sweep', {
         params: { channel, startPower, endPower, type },
       });
-      this.setState({ sweep });
+      this.setState({ sweep, temperature: `T = ${temperature}°C` });
       await post('/api/sweep/data', { channel, sweep, unit, type });
     } catch (e) {
       alert(e);
@@ -188,7 +206,7 @@ Run the 15 dBm -> 34 dBm sweep?`
   /* eslint-enable no-alert */
 
   render() {
-    const { sweep, channel, unit, printing, printingSweep, printDate } = this.state;
+    const { sweep, channel, unit, temperature, printing, printingSweep, printDate } = this.state;
 
     const chartOptions = {
       width: '1200',
@@ -230,6 +248,7 @@ Run the 15 dBm -> 34 dBm sweep?`
         <Print type="submit" onClick={this.togglePrint}>
           Print
         </Print>
+        <Temperature>{temperature}</Temperature>
         <br />
         {[1, 2, 3, 4, 5].map(num => (
           <Fragment key={num}>

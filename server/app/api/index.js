@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const { get } = require('axios');
 const {
   rfOn,
   rfOff,
@@ -10,8 +11,16 @@ const {
   readCsv,
   getDateLastModified,
 } = require('../util/utils');
+const port = require('../util/port');
 
 const api = Router();
+
+api.post('/close_port', async (req, res) => {
+  if (port.connected) {
+    await port.disconnect();
+  }
+  res.sendStatus(201);
+});
 
 api.get('/sweep', async (req, res) => {
   const { type } = req.query;
@@ -44,7 +53,25 @@ api.get('/sweep', async (req, res) => {
   await setPower(frequency, -20);
   await rfOff();
   await resetAnalyzer();
-  res.send({ sweep: data });
+  let temperature = null;
+  const getTemp = async () => {
+    temperature = await port.connection.writeCommand('TA000', tempData => tempData.split('x')[1].trim());
+  };
+  if (!port.connected) {
+    try {
+      const {
+        data: { temperature: temp },
+      } = await get('http://localhost:3300/api/temp');
+      temperature = temp;
+    } catch (e) {
+      if (await port.connect()) {
+        await getTemp();
+      }
+    }
+  } else {
+    await getTemp();
+  }
+  res.status(200).send({ sweep: data, temperature });
 });
 
 api
