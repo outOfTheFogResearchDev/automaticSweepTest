@@ -73,8 +73,10 @@ api
       dateHigh = await getDateLastModified(channel, unit, 'high');
     } catch (e) {} // eslint-disable-line no-empty
     const data = low.concat(high);
-    const date = [dateLow, dateHigh].sort((a, b) => a > b)[0];
-    res.status(200).send({ data, date: `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}` });
+    const date = [dateLow, dateHigh].sort((a, b) => a < b)[0];
+    res
+      .status(200)
+      .send({ data, date: date ? `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}` : null });
   });
 
 module.exports = api;
