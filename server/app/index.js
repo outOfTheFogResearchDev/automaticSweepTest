@@ -29,6 +29,7 @@ app.use(express.static(`${__dirname}/../../client/dist/`));
 app.use('/api', api);
 
 app.get('/exit', async () => {
+  if (process.env.NODE_ENV === 'development') return;
   if (port.connected) port.disconnect();
   process.exit();
 });
