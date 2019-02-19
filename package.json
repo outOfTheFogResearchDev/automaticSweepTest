@@ -4,8 +4,10 @@
   "description": "",
   "main": "server/index.js",
   "scripts": {
-    "test": "set NODE_ENV='test' && jest",
+    "test": "set NODE_ENV=test&& jest",
     "start": "node server/index.js",
+    "start-dev": "set NODE_ENV=development&& nodemon server/index.js",
+    "open": "start chrome /max --app=http://localhost:3333",
     "gui-setup-helper": "node server/guiSetupHelper.js",
     "cpp-build": "node-gyp rebuild",
     "react-dev": "webpack -d --watch --optimize-minimize --optimize-occurrence-order --optimize-dedupe --config webpack.config.js",
@@ -58,6 +60,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.9.1",
     "jest": "^23.4.2",
+    "nodemon": "^1.18.10",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0"
   },
