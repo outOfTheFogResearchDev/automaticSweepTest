@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { get } = require('axios');
+const axios = require('axios');
 const {
   rfOn,
   rfOff,
@@ -12,6 +12,24 @@ const {
   getDateLastModified,
 } = require('../util/utils');
 const port = require('../util/port');
+
+const httpReq = axios.create();
+
+httpReq.defaults.timeout = 500;
+
+const get = (url, params = {}, tries = 0) =>
+  new Promise(async resolve => {
+    try {
+      resolve(await httpReq.get(url, params));
+    } catch (e) {
+      if (tries >= 5) {
+        window.alert('issue talking with the XF05 box'); // eslint-disable-line no-alert
+        resolve({ data: {} });
+      } else {
+        resolve(get(url, params, tries + 1));
+      }
+    }
+  });
 
 const api = Router();
 
