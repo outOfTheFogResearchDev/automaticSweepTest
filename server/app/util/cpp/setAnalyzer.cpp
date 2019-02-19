@@ -28,7 +28,7 @@ void setAnalyzer(const FunctionCallbackInfo<Value> &args)
 
     // Set band center and marker
     viPrintf(viMXA, "FREQ:CENTER %f GHz\n", frequency);
-    viPrintf(viMXA, "FREQ:SPAN 1 MHz\n");
+    viPrintf(viMXA, "FREQ:SPAN 2 MHz\n");
     viPrintf(viMXA, "CALC:MARK1:MODE OFF\n");
     viPrintf(viMXA, "CALC:MARK1:SET:CENT\n");
 
