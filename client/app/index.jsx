@@ -90,6 +90,10 @@ const HighSweep = styled.button`
   font-size: 100%;
 `;
 
+const ping = async () => {
+  await post('/ping');
+};
+
 const nextIsLower = (sweep, dBm, i) => sweep[i + 1] && +dBm > sweep[i + 1][1];
 
 const nextDBIsLower = (sweep, dBm, i) => (sweep[i + 4] ? +dBm > sweep[i + 4][1] : true);
@@ -134,6 +138,10 @@ export default class extends Component {
     this.handleChannelSwitch = this.handleChannelSwitch.bind(this);
     this.handleDataHistory = this.handleDataHistory.bind(this);
     this.sweepSystem = this.sweepSystem.bind(this);
+  }
+
+  componentDidMount() {
+    setInterval(ping, 1000);
   }
 
   componentDidUpdate() {
