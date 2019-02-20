@@ -29,7 +29,6 @@ app.use(express.static(`${__dirname}/../../client/dist/`));
 app.use('/api', api);
 
 let ping = false;
-let alive = false;
 
 const gracefulShutdown = async () => {
   if (port.connected) await port.disconnect();
@@ -40,16 +39,14 @@ const timedExit = async () => {
   if (!ping) gracefulShutdown();
   else {
     ping = false;
-    setTimeout(timedExit, 5000);
+    setTimeout(timedExit, 2000);
   }
 };
 
+setTimeout(timedExit, 10000); // starts on server start
+
 app.post('/ping', (req, res) => {
   ping = true;
-  if (!alive) {
-    alive = true;
-    timedExit();
-  }
   res.sendStatus(201);
 });
 
