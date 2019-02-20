@@ -98,7 +98,7 @@ const nextIsLower = (sweep, dBm, i) => sweep[i + 1] && +dBm > sweep[i + 1][1];
 
 const nextDBIsLower = (sweep, dBm, i) => (sweep[i + 4] ? +dBm > sweep[i + 4][1] : true);
 
-const inRange = dBm => (+dBm >= -13 && +dBm <= -12 ? '#6B8E23' : 'tomato');
+const inRange = (dBm, level) => (+dBm >= (level === 12 ? -13.5 : -13) && +dBm <= -12 ? '#6B8E23' : 'tomato');
 
 const transformData = sweep => {
   const data = [];
@@ -108,7 +108,7 @@ const transformData = sweep => {
     if (nextIsLower(sweep, dBm, i) && nextDBIsLower(sweep, dBm, i) && level >= 2) {
       indexOptions = {
         markerType: 'triangle',
-        markerColor: level <= 3 ? 'black' : inRange(dBm),
+        markerColor: level <= 3 ? 'black' : inRange(dBm, level),
         markerSize: 12,
         toolTipContent: `Level: ${level}, {y} dBm`,
       };
