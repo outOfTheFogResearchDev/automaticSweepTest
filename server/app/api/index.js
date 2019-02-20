@@ -10,6 +10,7 @@ const {
   writeCsv,
   readCsv,
   getDateLastModified,
+  promiseTimeout,
 } = require('../util/utils');
 const port = require('../util/port');
 
@@ -17,16 +18,15 @@ const httpReq = axios.create();
 
 httpReq.defaults.timeout = 500;
 
-const get = (url, params = {}, tries = 0) =>
+const get = (p, tries = 0) =>
   new Promise(async resolve => {
     try {
-      resolve(await httpReq.get(url, params));
+      resolve(await p);
     } catch (e) {
       if (tries >= 5) {
-        window.alert('issue talking with the XF05 box'); // eslint-disable-line no-alert
         resolve({ data: {} });
       } else {
-        resolve(get(url, params, tries + 1));
+        resolve(get(p, tries + 1));
       }
     }
   });
@@ -72,22 +72,25 @@ api.get('/sweep', async (req, res) => {
   await rfOff();
   await resetAnalyzer();
   let temperature = null;
-  const getTemp = async () => {
+  const gt = async () => {
     temperature = await port.connection.writeCommand('TA000', tempData => tempData.split('x')[1].trim());
+  };
+  const getTemp = async () => {
+    await promiseTimeout(gt(), 500);
   };
   if (!port.connected) {
     try {
       const {
         data: { temperature: temp },
-      } = await get('http://localhost:3300/api/temp');
+      } = await get(httpReq.get('http://localhost:3300/api/temp'));
       temperature = temp;
     } catch (e) {
       if (await port.connect()) {
-        await getTemp();
+        await get(getTemp());
       }
     }
   } else {
-    await getTemp();
+    await get(getTemp());
   }
   res.status(200).send({ sweep: data, temperature });
 });
