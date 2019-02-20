@@ -18,15 +18,16 @@ const httpReq = axios.create();
 
 httpReq.defaults.timeout = 500;
 
-const get = (p, tries = 0) =>
-  new Promise(async resolve => {
+const get = (p, hard = false, tries = 0) =>
+  new Promise(async (resolve, reject) => {
     try {
       resolve(await p);
     } catch (e) {
       if (tries >= 5) {
-        resolve({ data: {} });
+        if (hard) reject();
+        else resolve();
       } else {
-        resolve(get(p, tries + 1));
+        resolve(get(p, hard, tries + 1));
       }
     }
   });
@@ -82,7 +83,7 @@ api.get('/sweep', async (req, res) => {
     try {
       const {
         data: { temperature: temp },
-      } = await get(httpReq.get('http://localhost:3300/api/temp'));
+      } = await get(httpReq.get('http://localhost:3300/api/temp'), 'hard');
       temperature = temp;
     } catch (e) {
       if (await port.connect()) {
@@ -92,7 +93,7 @@ api.get('/sweep', async (req, res) => {
   } else {
     await get(getTemp());
   }
-  res.status(200).send({ sweep: data, temperature });
+  res.status(200).send({ sweep: [], temperature });
 });
 
 api
