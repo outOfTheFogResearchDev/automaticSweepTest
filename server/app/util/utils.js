@@ -61,6 +61,8 @@ const getDateLastModified = (unit, channel, type) =>
     }
   });
 
+const promiseTimeout = async (p, ms) => Promise.race([p, new Promise((resolve, reject) => setTimeout(reject, ms))]);
+
 module.exports = {
   rfOn,
   rfOff,
@@ -71,4 +73,5 @@ module.exports = {
   writeCsv,
   readCsv,
   getDateLastModified,
+  promiseTimeout,
 };
