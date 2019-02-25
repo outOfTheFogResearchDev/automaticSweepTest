@@ -93,7 +93,7 @@ api.get('/sweep', async (req, res) => {
   } else {
     await get(getTemp());
   }
-  res.status(200).send({ sweep: [], temperature });
+  res.status(200).send({ sweep: data, temperature });
 });
 
 api
