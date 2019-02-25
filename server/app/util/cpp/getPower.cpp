@@ -25,6 +25,8 @@ void setAnalyzer(const FunctionCallbackInfo<Value> &args)
     viPrintf(viMXA, "INIT:IMM;*WAI\n");
 
     // Get the current output in string form, to be converted to a number in JS
+    viPrintf(viMXA, "CALC:MARK1:MODE OFF\n");
+    viPrintf(viMXA, "CALC:MARK1:MAX\n");
     viQueryf(viMXA, "CALC:MARKER1:Y?\n", "%t", &res);
 
     viClose(viMXA);     // closes session
