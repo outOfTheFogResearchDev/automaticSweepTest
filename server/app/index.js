@@ -38,7 +38,7 @@ const gracefulShutdown = async () => {
 const timedExit = async () => {
   if (!ping) gracefulShutdown();
   else {
-    ping = false;
+    if (!process.env.inOperation) ping = false;
     setTimeout(timedExit, 2000);
   }
 };
