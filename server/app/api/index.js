@@ -44,7 +44,7 @@ api.post('/close_port', async (req, res) => {
 api.get('/sweep', async (req, res) => {
   const { type } = req.query;
   let { channel, startPower, endPower } = req.query;
-  process.env.inOperation = true;
+  process.env.inOperation = 1;
   channel = +channel;
   startPower = +startPower;
   endPower = +endPower;
@@ -94,7 +94,7 @@ api.get('/sweep', async (req, res) => {
   } else {
     await get(getTemp());
   }
-  process.env.inOperation = false;
+  process.env.inOperation = 0;
   res.status(200).send({ sweep: data, temperature });
 });
 
