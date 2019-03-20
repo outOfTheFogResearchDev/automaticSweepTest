@@ -15,7 +15,7 @@ void setPower(const FunctionCallbackInfo<Value> &args)
     ViStatus viStatus = 0;
 
     viStatus = viOpenDefaultRM(&defaultRM);
-    viStatus = viOpen(defaultRM, "GPIB0::18::INSTR", VI_NULL, VI_NULL, &viMXG);
+    viStatus = viOpen(defaultRM, "GPIB2::18::INSTR", VI_NULL, VI_NULL, &viMXG);
 
     if (viStatus)
         return;
