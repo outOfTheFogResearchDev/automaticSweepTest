@@ -236,7 +236,7 @@ Run the 15 dBm -> 34 dBm sweep?`
       this.setState({ sweep, temperature: `T = ${temperature}°C` });
       await post('/api/sweep/data', { channel, sweep, unit, type });
     } catch (e) {
-      alert(e);
+      window.alert(e); // eslint-disable-line no-alert
     }
   }
 
