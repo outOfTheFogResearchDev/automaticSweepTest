@@ -13,6 +13,7 @@ const {
   promiseTimeout,
 } = require('../util/utils');
 const port = require('../util/port');
+const { inOperation, outOperation } = require('../ping/index');
 
 const httpReq = axios.create();
 
@@ -44,7 +45,7 @@ api.post('/close_port', async (req, res) => {
 api.get('/sweep', async (req, res) => {
   const { type } = req.query;
   let { channel, startPower, endPower } = req.query;
-  process.env.inOperation = 1;
+  inOperation();
   channel = +channel;
   startPower = +startPower;
   endPower = +endPower;
@@ -94,7 +95,7 @@ api.get('/sweep', async (req, res) => {
   } else {
     await get(getTemp());
   }
-  process.env.inOperation = 0;
+  outOperation();
   res.status(200).send({ sweep: data, temperature });
 });
 

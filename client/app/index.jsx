@@ -94,6 +94,12 @@ const ping = async () => {
   await post('/ping');
 };
 
+const _confirm = async string => {
+  await post('/ping/in_operation');
+  const answer = window.confirm(string); // eslint-disable-line no-alert
+  return post('/ping/out_operation').then(() => answer);
+};
+
 const nextIsLower = (sweep, dBm, i) => sweep[i + 1] && +dBm > sweep[i + 1][1];
 
 const nextDBIsLower = (sweep, dBm, i) => (sweep[i + 4] ? +dBm > sweep[i + 4][1] : true);
@@ -190,13 +196,12 @@ export default class extends Component {
     this.setState({ sweep });
   }
 
-  /* eslint-disable no-alert */
   async sweepSystem({ target: { value: type } }) {
     const { channel, unit } = this.state;
     if (
       !channel ||
       ((type === 'high' &&
-        !window.confirm(
+        !(await _confirm(
           `Make sure that the manual pop-up check has passed for channel ${channel}
           
 Make sure the ${
@@ -204,8 +209,8 @@ Make sure the ${
           } AMP is attached
           
 Run the 15 dBm -> 34 dBm sweep?`
-        )) ||
-        (type === 'low' && !window.confirm(`Run the -50 dBm -> 15 dBm sweep on channel ${channel}?`)))
+        ))) ||
+        (type === 'low' && !(await _confirm(`Run the -50 dBm -> 15 dBm sweep on channel ${channel}?`))))
     ) {
       return;
     }
@@ -234,7 +239,6 @@ Run the 15 dBm -> 34 dBm sweep?`
       alert(e);
     }
   }
-  /* eslint-enable no-alert */
 
   render() {
     const { sweep, channel, unit, temperature, printing, printingSweep, printDate } = this.state;
