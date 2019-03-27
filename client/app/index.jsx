@@ -94,11 +94,15 @@ const ping = async () => {
   await post('/ping');
 };
 
-const _confirm = async string => {
+const _window = async (type, string) => {
   await post('/ping/in_operation');
-  const answer = window.confirm(string); // eslint-disable-line no-alert
+  const answer = window[type](string); // eslint-disable-line no-alert
   return post('/ping/out_operation').then(() => answer);
 };
+
+const _confirm = string => _window('confirm', string);
+
+const _alert = string => _window('alert', string);
 
 const nextIsLower = (sweep, dBm, i) => sweep[i + 1] && +dBm > sweep[i + 1][1];
 
@@ -236,7 +240,7 @@ Run the 15 dBm -> 34 dBm sweep?`
       this.setState({ sweep, temperature: `T = ${temperature}°C` });
       await post('/api/sweep/data', { channel, sweep, unit, type });
     } catch (e) {
-      window.alert(e); // eslint-disable-line no-alert
+      _alert(e);
     }
   }
 
